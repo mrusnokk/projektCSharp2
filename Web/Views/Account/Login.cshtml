@@ -1,0 +1,30 @@
+﻿
+@model Web.ViewModels.LoginViewModel
+@{
+	ViewData["Title"] = "Přihlášení";
+}
+<h2>Přihlášení</h2>
+
+<form asp-action="Login" method="post">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <div class="mb-3">
+        <label asp-for="Email" class="form-label">Email</label>
+        <input asp-for="Email" class="form-control" />
+        <span asp-validation-for="Email" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Password" class="form-label">Heslo</label>
+        <input asp-for="Password" type="password" class="form-control" />
+        <span asp-validation-for="Password" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3 form-check">
+        <input asp-for="RememberMe" class="form-check-input" />
+        <label asp-for="RememberMe" class="form-check-label">Zapamatovat si mě</label>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Přihlásit se</button>
+    <a asp-action="Register" class="btn btn-link">Nemám účet</a>
+</form>
