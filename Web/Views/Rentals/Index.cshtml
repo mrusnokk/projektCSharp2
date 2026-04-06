@@ -1,0 +1,63 @@
+﻿@using Shared.Models
+@using Web.ViewModels
+@model List<Rental>
+@{
+	ViewData["Title"] = "Moje půjčení";
+}
+<h2>Moje půjčení</h2>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">Zatím nemáte žádná půjčení.</div>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Kolo</th>
+                <th>Začátek</th>
+                <th>Konec</th>
+                <th>Doba (min)</th>
+                <th>Cena</th>
+                <th>Stav</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var rental in Model)
+            {
+                <tr>
+                    <td>@rental.BikeId</td>
+                    <td>@rental.StartedAt.ToString("dd.MM.yyyy HH:mm")</td>
+                    <td>@(rental.EndedAt.HasValue? rental.EndedAt.Value.ToString("dd.MM.yyyy HH:mm") : "-")</td>
+                    <td>@(rental.DurationMinutes.HasValue? Math.Round(rental.DurationMinutes.Value).ToString() : "-")</td>
+                    <td>@(rental.Price.HasValue? rental.Price.Value + " Kč" : "-")</td>
+                    <td>
+                        <span class="badge @(rental.Status == "active" ? "bg-warning" : "bg-secondary")">
+                            @(rental.Status == "active" ? "Aktivní" : "Ukončeno")
+                        </span>
+                    </td>
+                    <td>
+                        @if (rental.Status == "active")
+                        {
+                            <a asp-action="Return" asp-route-rentalId="@rental.Id"
+                               class="btn btn-sm btn-danger">Vrátit kolo</a>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+<a asp-controller="Stations" asp-action="Index" class="btn btn-primary">Půjčit kolo</a>

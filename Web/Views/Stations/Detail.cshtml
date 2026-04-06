@@ -1,0 +1,49 @@
+﻿@using Web.ViewModels
+@model StationDetailViewModel
+@{
+	ViewData["Title"] = Model.Station.Name;
+}
+<h2>@Model.Station.Name</h2>
+<p class="text-muted">@Model.Station.Address</p>
+<p>
+    GPS: @Model.Station.Lat, @Model.Station.Lng
+</p>
+
+<h4>
+    Dostupná kola
+    <span class="badge bg-success">@Model.AvailableBikes.Count / @Model.TotalCount</span>
+</h4>
+
+@if (!Model.AvailableBikes.Any())
+{
+    <div class="alert alert-warning">Na tomto stanovišti nejsou dostupná žádná kola.</div>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Kód</th>
+                <th>Model</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var bike in Model.AvailableBikes)
+            {
+                <tr>
+                    <td>@bike.Code</td>
+                    <td>@bike.Model</td>
+                    <td>
+                        <a asp-controller="Rentals" asp-action="Rent"
+                           asp-route-bikeId="@bike.Id"
+                           asp-route-stationId="@Model.Station.Id"
+                           class="btn btn-sm btn-success">Půjčit</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+<a asp-action="Index" class="btn btn-secondary mt-2">Zpět na seznam</a>

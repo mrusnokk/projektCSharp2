@@ -1,0 +1,58 @@
+﻿@using Web.ViewModels
+@model List<StationViewModel>
+@{
+	ViewData["Title"] = "Stanoviště";
+}
+<h2>Stanoviště kol</h2>
+
+<table class="table" id="stations-table">
+    <thead>
+        <tr>
+            <th>Název</th>
+            <th>Adresa</th>
+            <th>Dostupná kola</th>
+            <th>Kapacita</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.Station.Name</td>
+                <td>@item.Station.Address</td>
+                <td>
+                    <span id="available-@item.Station.Id"
+                          class="badge @(item.AvailableCount > 0 ? "bg-success" : "bg-danger")">
+                        @item.AvailableCount / @item.TotalCount
+                    </span>
+                </td>
+                <td>@item.Station.Capacity</td>
+                <td>
+                    <a asp-action="Detail" asp-route-id="@item.Station.Id"
+                       class="btn btn-sm btn-primary">Detail</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@section Scripts {
+    <script>
+        // AJAX refresh dostupnosti každých 30 sekund
+        setInterval(async () => {
+            @foreach (var item in Model)
+            {
+                    <text>
+                        try {
+                            const res = await fetch('/Stations/AvailabilityPartial/@item.Station.Id');
+                            const data = await res.json();
+                            const badge = document.getElementById('available-@item.Station.Id');
+                            badge.textContent = data.availableCount + ' / ' + data.totalCount;
+                            badge.className = 'badge ' + (data.availableCount > 0 ? 'bg-success' : 'bg-danger');
+                        } catch {}
+                    </text>
+            }
+        }, 30000);
+    </script>
+}

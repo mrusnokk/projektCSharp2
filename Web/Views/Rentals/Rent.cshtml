@@ -1,0 +1,28 @@
+﻿@using Web.ViewModels
+@model RentViewModel
+@{
+	ViewData["Title"] = "Půjčit kolo";
+}
+<h2>Půjčit kolo</h2>
+
+<div class="card" style="max-width: 400px;">
+    <div class="card-body">
+        <h5 class="card-title">@Model.Bike.Model</h5>
+        <p class="card-text">
+            <strong>Kód kola:</strong> @Model.Bike.Code<br />
+            <strong>Stanoviště:</strong> @Model.Station.Name<br />
+            <strong>Cena:</strong> 30 Kč / hodina
+        </p>
+
+        <form asp-action="Rent" method="post">
+            <input type="hidden" name="bikeId" value="@Model.Bike.Id" />
+            <input type="hidden" name="stationId" value="@Model.Station.Id" />
+            <input type="hidden" name="confirm" value="true" />
+
+            <button type="submit" class="btn btn-success">Potvrdit půjčení</button>
+            <a asp-controller="Stations" asp-action="Detail"
+               asp-route-id="@Model.Station.Id"
+               class="btn btn-secondary">Zrušit</a>
+        </form>
+    </div>
+</div>

@@ -29,7 +29,7 @@ namespace Web
                 options.Cookie.HttpOnly = true;
                 options.Cookie.IsEssential = true;
             });
-
+            builder.Services.AddSingleton<TokenService>();
 
 
             var app = builder.Build();
@@ -50,6 +50,7 @@ namespace Web
             app.UseSession();
             app.UseAuthorization();
 
+            app.MapControllers();
             app.MapControllerRoute(
                 name: "default",
                 pattern: "{controller=Home}/{action=Index}/{id?}");
