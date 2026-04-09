@@ -2,8 +2,12 @@
 @using Web.ViewModels
 @model List<Rental>
 @{
-	ViewData["Title"] = "Moje půjčení";
+    ViewData["Title"] = "Moje půjčení";
+    string sortBy = ViewBag.SortBy ?? "StartedAt";
+    string sortDir = ViewBag.SortDir ?? "DESC";
+    string nextDir = sortDir == "ASC" ? "DESC" : "ASC";
 }
+
 <h2>Moje půjčení</h2>
 
 @if (TempData["Success"] != null)
@@ -25,11 +29,41 @@ else
         <thead>
             <tr>
                 <th>Kolo</th>
-                <th>Začátek</th>
-                <th>Konec</th>
-                <th>Doba (min)</th>
-                <th>Cena</th>
-                <th>Stav</th>
+                <th>
+                    <a asp-action="Index"
+                           asp-route-sortBy="StartedAt"
+                           asp-route-sortDir="@(sortBy == "StartedAt" ? nextDir : "DESC")">
+                        Začátek @(sortBy == "StartedAt" ? (sortDir == "ASC" ? "▲" : "▼") : "")
+                    </a>
+                </th>
+                <th>
+                    <a asp-action="Index"
+                           asp-route-sortBy="EndedAt"
+                           asp-route-sortDir="@(sortBy == "EndedAt" ? nextDir : "DESC")">
+                        Konec @(sortBy == "EndedAt" ? (sortDir == "ASC" ? "▲" : "▼") : "")
+                    </a>
+                </th>
+                <th>
+                    <a asp-action="Index"
+                           asp-route-sortBy="DurationMinutes"
+                           asp-route-sortDir="@(sortBy == "DurationMinutes" ? nextDir : "DESC")">
+                        Doba (min) @(sortBy == "DurationMinutes" ? (sortDir == "ASC" ? "▲" : "▼") : "")
+                    </a>
+                </th>
+                <th>
+                    <a asp-action="Index"
+                           asp-route-sortBy="Price"
+                           asp-route-sortDir="@(sortBy == "Price" ? nextDir : "DESC")">
+                        Cena @(sortBy == "Price" ? (sortDir == "ASC" ? "▲" : "▼") : "")
+                    </a>
+                </th>
+                <th>
+                    <a asp-action="Index"
+                           asp-route-sortBy="Status"
+                           asp-route-sortDir="@(sortBy == "Status" ? nextDir : "ASC")">
+                        Stav @(sortBy == "Status" ? (sortDir == "ASC" ? "▲" : "▼") : "")
+                    </a>
+                </th>
                 <th></th>
             </tr>
         </thead>
@@ -60,4 +94,4 @@ else
     </table>
 }
 
-<a asp-controller="Stations" asp-action="Index" class="btn btn-primary">Půjčit kolo</a>
+<a asp-controller="Stations" asp-action="Index" class="btn btn-primary">Půjčit kolo</a>o</a>

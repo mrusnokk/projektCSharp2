@@ -2,7 +2,10 @@
 {
     public class TokenService
     {
-        private readonly Dictionary<string, int> _tokens = new();
+        private readonly Dictionary<string, int> _tokens = new()
+    {
+        { "ADMIN_DESKTOP_TOKEN", 0 }
+    };
 
         public string GenerateToken(int userId)
         {

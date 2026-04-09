@@ -16,11 +16,26 @@ namespace Web.Repositories
 
         private SqliteConnection CreateConnection() =>
             new SqliteConnection(_connectionString);
-
-        public async Task<IEnumerable<Rental>> GetAllAsync()
+        public async Task<IEnumerable<Rental>> GetByUserAsync(int userId, string sortBy = "StartedAt", string sortDir = "DESC")
         {
+            var allowed = new[] { "StartedAt", "EndedAt", "Price", "DurationMinutes", "Status" };
+            if (!allowed.Contains(sortBy)) sortBy = "StartedAt";
+            if (sortDir != "ASC") sortDir = "DESC";
+
             using var connection = CreateConnection();
-            return await connection.QueryAsync<Rental>("SELECT * FROM Rentals ORDER BY StartedAt DESC");
+            return await connection.QueryAsync<Rental>(
+                $"SELECT * FROM Rentals WHERE UserId = @UserId ORDER BY {sortBy} {sortDir}",
+                new { UserId = userId });
+        }
+        public async Task<IEnumerable<Rental>> GetAllAsync(string sortBy = "StartedAt", string sortDir = "DESC")
+        {
+            var allowed = new[] { "StartedAt", "EndedAt", "Price", "DurationMinutes", "Status" };
+            if (!allowed.Contains(sortBy)) sortBy = "StartedAt";
+            if (sortDir != "ASC") sortDir = "DESC";
+
+            using var connection = CreateConnection();
+            return await connection.QueryAsync<Rental>(
+                $"SELECT * FROM Rentals ORDER BY {sortBy} {sortDir}");
         }
 
         public async Task<Rental?> GetByIdAsync(int id)

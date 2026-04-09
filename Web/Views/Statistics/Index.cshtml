@@ -1,0 +1,102 @@
+﻿@using Shared.Models
+@model List<Station>
+@{
+	ViewData["Title"] = "Statistiky";
+}
+<h2>Statistiky stanovišť</h2>
+
+<div class="row mb-3">
+    <div class="col-auto">
+        <select id="month-select" class="form-select">
+            @for (int m = 1; m <= 12; m++)
+            {
+                <option value="@m" selected="@(m == DateTime.Now.Month)">
+                    @System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(m)
+                </option>
+            }
+        </select>
+    </div>
+    <div class="col-auto">
+        <select id="year-select" class="form-select">
+            @for (int y = DateTime.Now.Year; y >= DateTime.Now.Year - 2; y--)
+            {
+                <option value="@y">@y</option>
+            }
+        </select>
+    </div>
+    <div class="col-auto">
+        <button class="btn btn-primary" onclick="loadStats()">Zobrazit</button>
+    </div>
+</div>
+
+<canvas id="stats-chart" style="max-height: 400px;"></canvas>
+
+<table class="table mt-4" id="stats-table">
+    <thead>
+        <tr>
+            <th>Stanoviště</th>
+            <th>Půjčení</th>
+            <th>Vrácení</th>
+        </tr>
+    </thead>
+    <tbody id="stats-body">
+        <tr><td colspan="3" class="text-muted">Vyberte období a klikněte Zobrazit</td></tr>
+    </tbody>
+</table>
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+    <script>
+        let chart = null;
+
+        async function loadStats() {
+        const month = document.getElementById('month-select').value;
+        const year = document.getElementById('year-select').value;
+
+        const res = await fetch(`/Statistics/Data?month=${month}&year=${year}`);
+        const result = await res.json();
+
+        const labels = result.data.map(d => d.stationName);
+        const started = result.data.map(d => d.rentalsStarted);
+        const ended = result.data.map(d => d.rentalsEnded);
+
+        // Aktualizuj tabulku
+        const tbody = document.getElementById('stats-body');
+        tbody.innerHTML = result.data.map(d => `
+        <tr>
+        <td>${d.stationName}</td>
+        <td>${d.rentalsStarted}</td>
+        <td>${d.rentalsEnded}</td>
+        </tr>
+        `).join('');
+
+        // Aktualizuj graf
+        if (chart) chart.destroy();
+        chart = new Chart(document.getElementById('stats-chart'), {
+        type: 'bar',
+        data: {
+        labels: labels,
+        datasets: [
+        {
+        label: 'Půjčení',
+        data: started,
+        backgroundColor: 'rgba(54, 162, 235, 0.7)'
+        },
+        {
+        label: 'Vrácení',
+        data: ended,
+        backgroundColor: 'rgba(75, 192, 192, 0.7)'
+        }
+        ]
+        },
+        options: {
+        responsive: true,
+        scales: { y: { beginAtZero: true } }
+        }
+        });
+        }
+
+        // Načti automaticky při otevření stránky
+        loadStats();
+    </script>
+}

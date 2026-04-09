@@ -1,12 +1,187 @@
 ﻿<Window x:Class="Admin.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:Admin"
-        mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
-    <Grid>
+        xmlns:converters="clr-namespace:Admin.Converters"
+        Title="BikeSharing Admin" Height="450" Width="800"
+        WindowStartupLocation="CenterScreen">
 
+    <Window.Resources>
+        <converters:BoolToActivateConverter x:Key="BoolToActivateConverter"/>
+        <converters:StatusToEnabledConverter x:Key="StatusToEnabledConverter"/>
+    </Window.Resources>
+    <Grid>
+        <TabControl x:Name="MainTabs">
+            <TabItem Header="Uživatelé" x:Name="TabUsers">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="10">
+                        <Button Content="Obnovit" Click="RefreshUsers_Click" Margin="0,0,10,0"/>
+                    </StackPanel>
+
+                    <DataGrid Grid.Row="1" x:Name="UsersGrid"
+                              AutoGenerateColumns="False"
+                              IsReadOnly="True"
+                              SelectionMode="Single"
+                              Margin="10">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="50"/>
+                            <DataGridTextColumn Header="Jméno" Binding="{Binding FullName}" Width="150"/>
+                            <DataGridTextColumn Header="Email" Binding="{Binding Email}" Width="200"/>
+                            <DataGridTextColumn Header="Telefon" Binding="{Binding Phone}" Width="120"/>
+                            <DataGridTextColumn Header="Registrace" Binding="{Binding CreatedAt, StringFormat=dd.MM.yyyy}" Width="100"/>
+                            <DataGridTemplateColumn Header="Aktivní" Width="80">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <CheckBox IsChecked="{Binding IsActive}" IsEnabled="False" HorizontalAlignment="Center"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn Header="Akce" Width="150">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Button Content="{Binding IsActive, Converter={StaticResource BoolToActivateConverter}}"
+                                                Click="ToggleUserActive_Click"
+                                                Tag="{Binding Id}"
+                                                Padding="5,2"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </TabItem>
+
+            <TabItem Header="Kola" x:Name="TabBikes">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="200"/>
+                    </Grid.RowDefinitions>
+
+                    <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="10">
+                        <Button Content="Obnovit" Click="RefreshBikes_Click" Margin="0,0,10,0"/>
+                        <Button Content="Přidat kolo" Click="AddBike_Click" Margin="0,0,10,0"/>
+                    </StackPanel>
+
+                    <DataGrid Grid.Row="1" x:Name="BikesGrid"
+                              AutoGenerateColumns="False"
+                              IsReadOnly="True"
+                              SelectionMode="Single"
+                              SelectionChanged="BikesGrid_SelectionChanged"
+                              Margin="10">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="50"/>
+                            <DataGridTextColumn Header="Kód" Binding="{Binding Code}" Width="100"/>
+                            <DataGridTextColumn Header="Model" Binding="{Binding Model}" Width="150"/>
+                            <DataGridTextColumn Header="Stanoviště" Binding="{Binding CurrentStationId}" Width="100"/>
+                            <DataGridTextColumn Header="Stav" Binding="{Binding Status}" Width="100"/>
+                            <DataGridTemplateColumn Header="Akce" Width="200">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal">
+                                            <Button Content="Upravit" Click="EditBike_Click"
+                                                    Tag="{Binding Id}" Margin="0,0,5,0" Padding="5,2"/>
+                                            <Button Content="Změnit stav" Click="ChangeBikeStatus_Click"
+                                                    Tag="{Binding Id}" Padding="5,2"
+                                                    IsEnabled="{Binding Status, Converter={StaticResource StatusToEnabledConverter}}"/>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+
+                    <GroupBox Grid.Row="2" Header="Historie stavů" Margin="10">
+                        <DataGrid x:Name="BikeHistoryGrid"
+                                  AutoGenerateColumns="False"
+                                  IsReadOnly="True">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Čas" Binding="{Binding ChangedAt, StringFormat=dd.MM.yyyy HH:mm}" Width="130"/>
+                                <DataGridTextColumn Header="Původní stav" Binding="{Binding OldStatus}" Width="100"/>
+                                <DataGridTextColumn Header="Nový stav" Binding="{Binding NewStatus}" Width="100"/>
+                                <DataGridTextColumn Header="Poznámka" Binding="{Binding Note}" Width="200"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </GroupBox>
+                </Grid>
+            </TabItem>
+
+            <TabItem Header="Stanoviště" x:Name="TabStations">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="10">
+                        <Button Content="Obnovit" Click="RefreshStations_Click" Margin="0,0,10,0"/>
+                        <Button Content="Přidat stanoviště" Click="AddStation_Click"/>
+                    </StackPanel>
+
+                    <DataGrid Grid.Row="1" x:Name="StationsGrid"
+                              AutoGenerateColumns="False"
+                              IsReadOnly="True"
+                              SelectionMode="Single"
+                              Margin="10">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="50"/>
+                            <DataGridTextColumn Header="Název" Binding="{Binding Name}" Width="150"/>
+                            <DataGridTextColumn Header="Adresa" Binding="{Binding Address}" Width="200"/>
+                            <DataGridTextColumn Header="GPS" Binding="{Binding Lat}" Width="80"/>
+                            <DataGridTextColumn Header="Kapacita" Binding="{Binding Capacity}" Width="80"/>
+                            <DataGridTemplateColumn Header="Aktivní" Width="80">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <CheckBox IsChecked="{Binding IsActive}" IsEnabled="False" HorizontalAlignment="Center"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn Header="Akce" Width="150">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Button Content="Upravit" Click="EditStation_Click"
+                                                Tag="{Binding Id}" Padding="5,2"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </TabItem>
+
+            <TabItem Header="Půjčení" x:Name="TabRentals">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="10">
+                        <Button Content="Obnovit" Click="RefreshRentals_Click"/>
+                    </StackPanel>
+
+                    <DataGrid Grid.Row="1" x:Name="RentalsGrid"
+                              AutoGenerateColumns="False"
+                              IsReadOnly="True"
+                              Margin="10">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="50"/>
+                            <DataGridTextColumn Header="Uživatel" Binding="{Binding UserId}" Width="80"/>
+                            <DataGridTextColumn Header="Kolo" Binding="{Binding BikeId}" Width="80"/>
+                            <DataGridTextColumn Header="Začátek" Binding="{Binding StartedAt, StringFormat=dd.MM.yyyy HH:mm}" Width="130"/>
+                            <DataGridTextColumn Header="Konec" Binding="{Binding EndedAt, StringFormat=dd.MM.yyyy HH:mm}" Width="130"/>
+                            <DataGridTextColumn Header="Doba (min)" Binding="{Binding DurationMinutes, StringFormat=N0}" Width="90"/>
+                            <DataGridTextColumn Header="Cena" Binding="{Binding Price, StringFormat=N2}" Width="80"/>
+                            <DataGridTextColumn Header="Stav" Binding="{Binding Status}" Width="80"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </TabItem>
+        </TabControl>
     </Grid>
 </Window>

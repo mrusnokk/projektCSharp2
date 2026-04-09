@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Shared.Models;
 using Web.Repositories;
 using Web.Services;
 
@@ -19,6 +20,35 @@ namespace Web.Controllers.Api
             _stationRepository = stationRepository;
             _bikeRepository = bikeRepository;
         }
+
+        [HttpPost]
+        public async Task<IActionResult> Create([FromBody] Station station)
+        {
+            if (!IsAuthenticated())
+                return Unauthorized(new { error = "Chybí token" });
+
+            if (string.IsNullOrWhiteSpace(station.Name))
+                return BadRequest(new { error = "Název je povinný" });
+
+            var id = await _stationRepository.CreateAsync(station);
+            return Ok(new { id });
+        }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Update(int id, [FromBody] Station station)
+        {
+            if (!IsAuthenticated())
+                return Unauthorized(new { error = "Chybí token" });
+
+            var existing = await _stationRepository.GetByIdAsync(id);
+            if (existing == null)
+                return NotFound(new { error = "Stanoviště nenalezeno" });
+
+            station.Id = id;
+            await _stationRepository.UpdateAsync(station);
+            return Ok();
+        }
+
 
         [HttpGet]
         public async Task<IActionResult> GetAll()

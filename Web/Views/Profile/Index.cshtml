@@ -1,0 +1,91 @@
+﻿@using Web.ViewModels
+@model ProfileViewModel
+@{
+	ViewData["Title"] = "Můj profil";
+}
+<h2>Můj profil</h2>
+
+<div class="row">
+    <div class="col-md-4">
+        <div class="card mb-3">
+            <div class="card-body">
+                <h5 class="card-title">@Model.User.FirstName @Model.User.LastName</h5>
+                <p class="card-text">
+                    <strong>Email:</strong> @Model.User.Email<br />
+                    <strong>Telefon:</strong> @(Model.User.Phone ?? "-")<br />
+                    <strong>Registrace:</strong> @Model.User.CreatedAt.ToString("dd.MM.yyyy")
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-8">
+        <div class="card mb-3">
+            <div class="card-body">
+                <h5 class="card-title">
+                    Statistiky
+                    <button class="btn btn-sm btn-outline-secondary float-end"
+                            onclick="refreshStats()">
+                        Obnovit
+                    </button>
+                </h5>
+                <div id="stats-container">
+                    <div class="row text-center">
+                        <div class="col">
+                            <h3 id="stat-total">@Model.TotalRentals</h3>
+                            <small class="text-muted">Celkem půjčení</small>
+                        </div>
+                        <div class="col">
+                            <h3 id="stat-spent">@Model.TotalSpent Kč</h3>
+                            <small class="text-muted">Celkem utraceno</small>
+                        </div>
+                        <div class="col">
+                            <h3 id="stat-active">
+                                @(Model.ActiveRental != null ? "Ano" : "Ne")
+                            </h3>
+                            <small class="text-muted">Aktivní půjčení</small>
+                        </div>
+                    </div>
+                </div>
+                <div id="stats-loading" style="display:none;">
+                    <div class="text-center text-muted">Načítám...</div>
+                </div>
+            </div>
+        </div>
+
+        @if (Model.ActiveRental != null)
+        {
+            <div class="alert alert-warning">
+                Máte aktivní půjčení od @Model.ActiveRental.StartedAt.ToString("dd.MM.yyyy HH:mm").
+                <a asp-controller="Rentals" asp-action="Return"
+                   asp-route-rentalId="@Model.ActiveRental.Id"
+                   class="alert-link">Vrátit kolo</a>
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        async function refreshStats() {
+            document.getElementById('stats-container').style.display = 'none';
+            document.getElementById('stats-loading').style.display = 'block';
+
+            try {
+                const res = await fetch('/Profile/Stats');
+                const data = await res.json();
+
+                document.getElementById('stat-total').textContent = data.totalRentals;
+                document.getElementById('stat-spent').textContent = data.totalSpent.toFixed(2) + ' Kč';
+                document.getElementById('stat-active').textContent = data.activeRental ? 'Ano' : 'Ne';
+            } catch {
+                alert('Nepodařilo se načíst statistiky.');
+            } finally {
+                document.getElementById('stats-loading').style.display = 'none';
+                document.getElementById('stats-container').style.display = 'block';
+            }
+        }
+        //autorefresh co 60 sekund
+        setInterval(refreshStats, 60000);
+    </script>
+}

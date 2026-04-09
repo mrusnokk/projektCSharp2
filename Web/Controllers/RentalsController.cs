@@ -24,13 +24,17 @@ namespace Web.Controllers
             _historyRepository = historyRepository;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string sortBy = "StartedAt", string sortDir = "DESC")
         {
             var userId = HttpContext.Session.GetInt32("UserId");
             if (userId == null)
                 return RedirectToAction("Login", "Account");
 
-            var rentals = await _rentalRepository.GetByUserAsync(userId.Value);
+            var rentals = await _rentalRepository.GetByUserAsync(userId.Value, sortBy, sortDir);
+
+            ViewBag.SortBy = sortBy;
+            ViewBag.SortDir = sortDir;
+
             return View(rentals.ToList());
         }
 
