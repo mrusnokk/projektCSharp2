@@ -50,26 +50,6 @@ namespace Admin
                 MessageBox.Show($"Chyba načítání uživatelů: {ex.Message}");
             }
         }
-        private async void RentalsGrid_Sorting(object sender, DataGridSortingEventArgs e)
-        {
-            e.Handled = true;
-            var sortDir = e.Column.SortDirection == ListSortDirection.Ascending ? "DESC" : "ASC";
-            var sortBy = e.Column.SortMemberPath;
-
-            e.Column.SortDirection = sortDir == "ASC"
-                ? ListSortDirection.Ascending
-                : ListSortDirection.Descending;
-
-            try
-            {
-                var rentals = await _api.GetRentalsAsync(sortBy, sortDir);
-                RentalsGrid.ItemsSource = rentals;
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Chyba: {ex.Message}");
-            }
-        }
         private async void ToggleUserActive_Click(object sender, RoutedEventArgs e)
         {
             if (sender is Button btn && btn.Tag is int id)

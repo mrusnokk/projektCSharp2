@@ -28,12 +28,12 @@ namespace Web.Controllers.Api
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAll([FromQuery] string sortBy = "StartedAt", [FromQuery] string sortDir = "DESC")
         {
             if (!IsAuthenticated())
                 return Unauthorized(new { error = "Chybí token" });
 
-            var rentals = await _rentalRepository.GetAllAsync();
+            var rentals = await _rentalRepository.GetAllAsync(sortBy, sortDir);
             return Ok(rentals);
         }
 

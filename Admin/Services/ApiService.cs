@@ -70,6 +70,8 @@ namespace Admin.Services
         // Stations
         public async Task<List<Station>> GetStationsAsync() =>
             await GetAsync<List<Station>>("/api/stations");
+        public async Task<List<Rental>> GetRentalsAsync(string sortBy = "StartedAt", string sortDir = "DESC") =>
+            await GetAsync<List<Rental>>($"/api/rentals?sortBy={sortBy}&sortDir={sortDir}");
 
         public async Task<StationDetail> GetStationAsync(int id) =>
             await GetAsync<StationDetail>($"/api/stations/{id}");

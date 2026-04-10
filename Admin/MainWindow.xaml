@@ -166,18 +166,18 @@
                     </StackPanel>
 
                     <DataGrid Grid.Row="1" x:Name="RentalsGrid"
-                              AutoGenerateColumns="False"
-                              IsReadOnly="True"
-                              Margin="10">
+                  AutoGenerateColumns="False"
+                  IsReadOnly="True"
+                  Margin="10">
                         <DataGrid.Columns>
-                            <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="50"/>
-                            <DataGridTextColumn Header="Uživatel" Binding="{Binding UserId}" Width="80"/>
-                            <DataGridTextColumn Header="Kolo" Binding="{Binding BikeId}" Width="80"/>
-                            <DataGridTextColumn Header="Začátek" Binding="{Binding StartedAt, StringFormat=dd.MM.yyyy HH:mm}" Width="130"/>
-                            <DataGridTextColumn Header="Konec" Binding="{Binding EndedAt, StringFormat=dd.MM.yyyy HH:mm}" Width="130"/>
-                            <DataGridTextColumn Header="Doba (min)" Binding="{Binding DurationMinutes, StringFormat=N0}" Width="90"/>
-                            <DataGridTextColumn Header="Cena" Binding="{Binding Price, StringFormat=N2}" Width="80"/>
-                            <DataGridTextColumn Header="Stav" Binding="{Binding Status}" Width="80"/>
+                            <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="50" SortMemberPath="Id"/>
+                            <DataGridTextColumn Header="Uživatel" Binding="{Binding UserId}" Width="80" SortMemberPath="UserId"/>
+                            <DataGridTextColumn Header="Kolo" Binding="{Binding BikeId}" Width="80" SortMemberPath="BikeId"/>
+                            <DataGridTextColumn Header="Začátek" Binding="{Binding StartedAt, StringFormat=dd.MM.yyyy HH:mm}" Width="130" SortMemberPath="StartedAt"/>
+                            <DataGridTextColumn Header="Konec" Binding="{Binding EndedAt, StringFormat=dd.MM.yyyy HH:mm}" Width="130" SortMemberPath="EndedAt"/>
+                            <DataGridTextColumn Header="Doba (min)" Binding="{Binding DurationMinutes, StringFormat=N0}" Width="90" SortMemberPath="DurationMinutes"/>
+                            <DataGridTextColumn Header="Cena" Binding="{Binding Price, StringFormat=N2}" Width="80" SortMemberPath="Price"/>
+                            <DataGridTextColumn Header="Stav" Binding="{Binding Status}" Width="80" SortMemberPath="Status"/>
                         </DataGrid.Columns>
                     </DataGrid>
                 </Grid>
