@@ -43,10 +43,12 @@
                             <DataGridTemplateColumn Header="Akce" Width="150">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
-                                        <Button Content="{Binding IsActive, Converter={StaticResource BoolToActivateConverter}}"
-                                                Click="ToggleUserActive_Click"
-                                                Tag="{Binding Id}"
-                                                Padding="5,2"/>
+                                        <StackPanel Orientation="Horizontal">
+                                            <Button Content="{Binding IsActive, Converter={StaticResource BoolToActivateConverter}}"
+                                                    Click="ToggleUserActive_Click"
+                                                    Tag="{Binding Id}" Margin="0,0,5,0" Padding="5,2"/>
+                                            
+                                        </StackPanel>
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
@@ -80,7 +82,7 @@
                             <DataGridTextColumn Header="Model" Binding="{Binding Model}" Width="150"/>
                             <DataGridTextColumn Header="Stanoviště" Binding="{Binding CurrentStationId}" Width="100"/>
                             <DataGridTextColumn Header="Stav" Binding="{Binding Status}" Width="100"/>
-                            <DataGridTemplateColumn Header="Akce" Width="200">
+                            <DataGridTemplateColumn Header="Akce" Width="260">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
                                         <StackPanel Orientation="Horizontal">
@@ -89,6 +91,9 @@
                                             <Button Content="Změnit stav" Click="ChangeBikeStatus_Click"
                                                     Tag="{Binding Id}" Padding="5,2"
                                                     IsEnabled="{Binding Status, Converter={StaticResource StatusToEnabledConverter}}"/>
+                                            <Button Content="Smazat" Click="DeleteBike_Click"
+                                                    Tag="{Binding Id}" Padding="5,2"
+                                                    Background="#ffcccc"/>
                                         </StackPanel>
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
@@ -144,8 +149,13 @@
                             <DataGridTemplateColumn Header="Akce" Width="150">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
-                                        <Button Content="Upravit" Click="EditStation_Click"
-                                                Tag="{Binding Id}" Padding="5,2"/>
+                                        <StackPanel Orientation="Horizontal">
+                                            <Button Content="Upravit" Click="EditStation_Click"
+                                                    Tag="{Binding Id}" Margin="0,0,5,0" Padding="5,2"/>
+                                            <Button Content="Smazat" Click="DeleteStation_Click"
+                                                    Tag="{Binding Id}" Padding="5,2"
+                                                    Background="#ffcccc"/>
+                                        </StackPanel>
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>

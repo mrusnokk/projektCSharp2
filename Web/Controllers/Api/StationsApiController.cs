@@ -80,6 +80,19 @@ namespace Web.Controllers.Api
                 totalCount = allBikes.Count()
             });
         }
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(int id)
+        {
+            if (!IsAuthenticated())
+                return Unauthorized(new { error = "Chybí token" });
+
+            var station = await _stationRepository.GetByIdAsync(id);
+            if (station == null)
+                return NotFound(new { error = "Stanoviště nenalezeno" });
+
+            await _stationRepository.DeleteAsync(id);
+            return Ok();
+        }
     }
 
 }

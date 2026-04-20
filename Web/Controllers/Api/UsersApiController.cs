@@ -53,6 +53,19 @@ namespace Web.Controllers.Api
             await _userRepository.SetActiveAsync(id, request.IsActive);
             return Ok();
         }
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(int id)
+        {
+            if (!IsAuthenticated())
+                return Unauthorized(new { error = "Chybí token" });
+
+            var user = await _userRepository.GetByIdAsync(id);
+            if (user == null)
+                return NotFound(new { error = "Uživatel nenalezen" });
+
+            await _userRepository.DeleteAsync(id);
+            return Ok();
+        }
     }
 
     public class SetActiveRequest

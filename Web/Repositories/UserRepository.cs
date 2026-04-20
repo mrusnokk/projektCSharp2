@@ -64,5 +64,12 @@ namespace Web.Repositories
                 "UPDATE Users SET IsActive = @IsActive WHERE Id = @Id",
                 new { Id = userId, IsActive = isActive ? 1 : 0 });
         }
+        public async Task DeleteAsync(int userId)
+        {
+            using var connection = CreateConnection();
+            await connection.ExecuteAsync(
+                "UPDATE Users SET IsActive = 0 WHERE Id = @Id",
+                new { Id = userId });
+        }
     }
 }

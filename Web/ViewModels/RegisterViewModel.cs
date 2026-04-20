@@ -6,6 +6,7 @@ namespace Web.ViewModels
     {
         [Required(ErrorMessage = "Email je povinný")]
         [EmailAddress(ErrorMessage = "Neplatný formát emailu")]
+        [RegularExpression(@"^[^@\s]+@[^@\s]+\.[^@\s]{2,}$", ErrorMessage = "Neplatný formát emailu")]
         public string Email { get; set; }
 
         [Required(ErrorMessage = "Heslo je povinné")]
@@ -21,8 +22,7 @@ namespace Web.ViewModels
 
         [Required(ErrorMessage = "Příjmení je povinné")]
         public string LastName { get; set; }
-
-        [Phone(ErrorMessage = "Neplatný formát telefonu")]
+        [RegularExpression(@"^(\+420|0)?\s?[0-9]{3}\s?[0-9]{3}\s?[0-9]{3}$", ErrorMessage = "Neplatný formát telefonu (např. +420 123 456 789)")]
         public string Phone { get; set; }
 
         [Range(typeof(bool), "true", "true", ErrorMessage = "Musíte souhlasit s podmínkami")]

@@ -12,7 +12,7 @@ namespace Admin.Services
     public class ApiService
     {
         private readonly HttpClient _client;
-        private const string BaseUrl = "https://localhost:7246";
+        private const string BaseUrl = "http://localhost:5045";
         private const string AdminToken = "ADMIN_DESKTOP_TOKEN";
 
         public ApiService()
@@ -105,5 +105,22 @@ namespace Admin.Services
         // Rentals
         public async Task<List<Rental>> GetRentalsAsync() =>
             await GetAsync<List<Rental>>("/api/rentals");
+        public async Task DeleteBikeAsync(int id)
+        {
+            var response = await _client.DeleteAsync($"/api/bikes/{id}");
+            response.EnsureSuccessStatusCode();
+        }
+
+        public async Task DeleteStationAsync(int id)
+        {
+            var response = await _client.DeleteAsync($"/api/stations/{id}");
+            response.EnsureSuccessStatusCode();
+        }
+
+        public async Task DeleteUserAsync(int id)
+        {
+            var response = await _client.DeleteAsync($"/api/users/{id}");
+            response.EnsureSuccessStatusCode();
+        }
     }
 }

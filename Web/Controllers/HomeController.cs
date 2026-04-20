@@ -8,12 +8,11 @@ namespace Web.Controllers
     {
         public IActionResult Index()
         {
-            return View();
-        }
+            var userId = HttpContext.Session.GetInt32("UserId");
+            if (userId == null)
+                return RedirectToAction("Login", "Account");
 
-        public IActionResult Privacy()
-        {
-            return View();
+            return RedirectToAction("Index", "Stations");
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

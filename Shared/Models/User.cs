@@ -11,6 +11,7 @@ namespace Shared.Models
         public string PasswordHash { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
+        public string FullName => $"{FirstName} {LastName}";
         public string Phone { get; set; }
         public DateTime CreatedAt { get; set; }
         public bool IsActive { get; set; }

@@ -1,7 +1,7 @@
 ﻿<Window x:Class="Admin.BikeStatusDialog"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Změnit stav kola" Height="220" Width="350"
+        Title="Změnit stav kola" Height="234" Width="350"
         WindowStartupLocation="CenterOwner"
         ResizeMode="NoResize">
 

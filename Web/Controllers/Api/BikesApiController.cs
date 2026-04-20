@@ -66,6 +66,9 @@ namespace Web.Controllers.Api
             if (string.IsNullOrWhiteSpace(bike.Model))
                 return BadRequest(new { error = "Model kola je povinný" });
 
+            if (await _bikeRepository.CodeExistsAsync(bike.Code))
+                return BadRequest(new { error = "Kolo s tímto kódem již existuje" });
+
             bike.Status = "available";
             var id = await _bikeRepository.CreateAsync(bike);
             return Ok(new { id });
@@ -83,6 +86,9 @@ namespace Web.Controllers.Api
 
             if (existing.Status == "rented")
                 return BadRequest(new { error = "Nelze upravit půjčené kolo" });
+
+            if (await _bikeRepository.CodeExistsAsync(bike.Code, id))
+                return BadRequest(new { error = "Kolo s tímto kódem již existuje" });
 
             bike.Id = id;
             await _bikeRepository.UpdateAsync(bike);
@@ -116,6 +122,22 @@ namespace Web.Controllers.Api
             });
 
             await _bikeRepository.UpdateStatusAsync(id, request.NewStatus, bike.CurrentStationId);
+            return Ok();
+        }
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(int id)
+        {
+            if (!IsAuthenticated())
+                return Unauthorized(new { error = "Chybí token" });
+
+            var bike = await _bikeRepository.GetByIdAsync(id);
+            if (bike == null)
+                return NotFound(new { error = "Kolo nenalezeno" });
+
+            if (bike.Status == "rented")
+                return BadRequest(new { error = "Nelze smazat půjčené kolo" });
+
+            await _bikeRepository.DeleteAsync(id);
             return Ok();
         }
     }

@@ -1,6 +1,7 @@
 ﻿using Shared.Models;
 using System;
 using System.Collections.Generic;
+using System.Net.Http;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
@@ -86,6 +87,11 @@ namespace Admin
                     await App.ApiService!.UpdateBikeAsync(_existing.Id, bike);
 
                 DialogResult = true;
+            }
+            catch (HttpRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.BadRequest)
+            {
+                CodeError.Text = "Kolo s tímto kódem již existuje";
+                CodeError.Visibility = Visibility.Visible;
             }
             catch (Exception ex)
             {

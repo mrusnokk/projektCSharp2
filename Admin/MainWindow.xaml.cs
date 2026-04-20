@@ -2,6 +2,7 @@
 using Microsoft.Win32;
 using Shared.Models;
 using System.ComponentModel;
+using System.Net.Http;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
@@ -18,6 +19,7 @@ namespace Admin
     public partial class MainWindow : Window
     {
         private readonly ApiService _api;
+        private System.Threading.Timer? _refreshTimer;
 
         public MainWindow()
         {
@@ -32,7 +34,22 @@ namespace Admin
             await LoadBikes();
             await LoadStations();
             await LoadRentals();
+
+            _refreshTimer = new System.Threading.Timer(async _ =>
+            {
+                await Dispatcher.InvokeAsync(async () =>
+                {
+                    await LoadBikes();
+                    await LoadStations();
+                });
+            }, null, 30000, 30000);
         }
+        protected override void OnClosed(EventArgs e)
+        {
+            _refreshTimer?.Dispose();
+            base.OnClosed(e);
+        }
+
 
         // USERS
         private async void RefreshUsers_Click(object sender, RoutedEventArgs e) =>
@@ -80,6 +97,13 @@ namespace Admin
             {
                 var bikes = await _api.GetBikesAsync();
                 BikesGrid.ItemsSource = bikes;
+
+                if (bikes.Any())
+                {
+                    BikesGrid.SelectedIndex = 0;
+                    var history = await _api.GetBikeHistoryAsync(bikes.First().Id);
+                    BikeHistoryGrid.ItemsSource = history;
+                }
             }
             catch (Exception ex)
             {
@@ -129,17 +153,54 @@ namespace Admin
                 var bike = bikes?.FirstOrDefault(b => b.Id == id);
                 if (bike == null) return;
 
+                if (bike.Status == "rented")
+                {
+                    MessageBox.Show(
+                        "Nelze změnit stav půjčeného kola. Kolo musí být nejdříve vráceno.",
+                        "Akce není dostupná",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Warning);
+                    return;
+                }
+
                 var dialog = new BikeStatusDialog(bike);
                 if (dialog.ShowDialog() == true)
                 {
                     try
                     {
                         await _api.UpdateBikeStatusAsync(id, dialog.NewStatus, dialog.Note);
+
                         await LoadBikes();
+                    }
+                    catch (HttpRequestException ex) when (ex.Message.Contains("400"))
+                    
+                    {
+                        
+                        MessageBox.Show(
+                            "Nepodařilo se změnit stav kola. Je pravděpodobné, že si ho mezitím někdo půjčil přes web. Aplikace nyní stáhne aktuální data.",
+                            "Zastaralá data",
+                            MessageBoxButton.OK,
+                            MessageBoxImage.Information);
+
+
+                        try
+                        {
+                            var freshBikes = await _api.GetBikesAsync();
+                            BikesGrid.ItemsSource = freshBikes;
+                        }
+                        catch (Exception loadEx)
+                        {
+                            MessageBox.Show($"Chyba při stahování aktuálních dat: {loadEx.Message}");
+                        }
                     }
                     catch (Exception ex)
                     {
-                        MessageBox.Show($"Chyba: {ex.Message}");
+                        
+                        MessageBox.Show(
+                            $"Došlo k chybě při komunikaci se serverem: {ex.Message}",
+                            "Chyba",
+                            MessageBoxButton.OK,
+                            MessageBoxImage.Error);
                     }
                 }
             }
@@ -199,5 +260,71 @@ namespace Admin
                 MessageBox.Show($"Chyba načítání půjčení: {ex.Message}");
             }
         }
+        private async void DeleteBike_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button btn && btn.Tag is int id)
+            {
+                var bikes = BikesGrid.ItemsSource as List<Bike>;
+                var bike = bikes?.FirstOrDefault(b => b.Id == id);
+                if (bike == null) return;
+
+                if (bike.Status == "rented")
+                {
+                    MessageBox.Show("Nelze smazat půjčené kolo.");
+                    return;
+                }
+
+                var result = MessageBox.Show(
+                    $"Opravdu chcete smazat kolo {bike.Code}?",
+                    "Potvrzení mazání",
+                    MessageBoxButton.YesNo,
+                    MessageBoxImage.Warning);
+
+                if (result == MessageBoxResult.Yes)
+                {
+                    try
+                    {
+                        await _api.DeleteBikeAsync(id);
+                        await LoadBikes();
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"Chyba při mazání: {ex.Message}");
+                    }
+                }
+            }
+        }
+
+        private async void DeleteStation_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button btn && btn.Tag is int id)
+            {
+                var stations = StationsGrid.ItemsSource as List<Station>;
+                var station = stations?.FirstOrDefault(s => s.Id == id);
+                if (station == null) return;
+
+                var result = MessageBox.Show(
+                    $"Opravdu chcete smazat stanoviště {station.Name}?",
+                    "Potvrzení mazání",
+                    MessageBoxButton.YesNo,
+                    MessageBoxImage.Warning);
+
+                if (result == MessageBoxResult.Yes)
+                {
+                    try
+                    {
+                        await _api.DeleteStationAsync(id);
+                        await LoadStations();
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"Chyba při mazání: {ex.Message}");
+                    }
+                }
+            }
+        }
+
+
     }
 }
+

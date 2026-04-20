@@ -14,7 +14,18 @@ namespace Web.Repositories
 
         private SqliteConnection CreateConnection() =>
             new SqliteConnection(_connectionString);
+        public async Task<bool> CodeExistsAsync(string code, int? excludeId = null)
+        {
+            using var connection = CreateConnection();
+            if (excludeId.HasValue)
+                return await connection.ExecuteScalarAsync<int>(
+                    "SELECT COUNT(*) FROM Bikes WHERE Code = @Code AND Id != @ExcludeId",
+                    new { Code = code, ExcludeId = excludeId }) > 0;
 
+            return await connection.ExecuteScalarAsync<int>(
+                "SELECT COUNT(*) FROM Bikes WHERE Code = @Code",
+                new { Code = code }) > 0;
+        }
         public async Task<IEnumerable<Bike>> GetAllAsync(string sortBy = "Code", string sortDir = "ASC")
         {
             var allowed = new[] { "Code", "Model", "Status" };
@@ -76,6 +87,22 @@ namespace Web.Repositories
             SET Status = @NewStatus, CurrentStationId = @StationId
             WHERE Id = @BikeId",
                 new { BikeId = bikeId, NewStatus = newStatus, StationId = stationId });
+        }
+        public async Task DeleteAsync(int bikeId)
+        {
+            using var connection = CreateConnection();
+
+            // Zkontroluj jestli kolo má nějaká půjčení
+            var rentalCount = await connection.ExecuteScalarAsync<int>(
+                "SELECT COUNT(*) FROM Rentals WHERE BikeId = @Id",
+                new { Id = bikeId });
+
+            if (rentalCount > 0)
+                throw new Exception("Nelze smazat kolo které má historická půjčení.");
+
+            await connection.ExecuteAsync(
+                "DELETE FROM Bikes WHERE Id = @Id",
+                new { Id = bikeId });
         }
     }
 }

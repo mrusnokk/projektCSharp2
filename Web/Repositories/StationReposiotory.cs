@@ -56,7 +56,8 @@ namespace Web.Repositories
         {
             using var connection = CreateConnection();
             await connection.ExecuteAsync(
-                "UPDATE Stations SET IsActive = 0 WHERE Id = @Id", new { Id = id });
+                "UPDATE Stations SET IsActive = 0 WHERE Id = @Id",
+                new { Id = id });
         }
     }
 }
