@@ -7,7 +7,7 @@
         public string Model { get; set; }
         public int? CurrentStationId { get; set; }
         public string Status { get; set; }
-        public DateTime CreatedAt { get; set; }
+        public DateTime CreatedAt { get; set; } = DateTime.Now;
     }
     
 

@@ -50,7 +50,7 @@ namespace Web.Controllers
             if (activeRental != null)
             {
                 TempData["Error"] = "Již máte aktivní půjčení. Nejdřív vraťte kolo.";
-                return RedirectToAction("Index", "Stations");
+                return RedirectToAction("Index", "Rentals");
             }
 
             var bike = await _bikeRepository.GetByIdAsync(bikeId);
@@ -147,7 +147,7 @@ namespace Web.Controllers
                 return RedirectToAction("Index");
 
             // Vypočítej dobu a cenu
-            var duration = (decimal)(DateTime.UtcNow - rental.StartedAt).TotalMinutes;
+            var duration = (decimal)(DateTime.Now - rental.StartedAt).TotalMinutes;
             var price = Math.Round(duration / 60 * 30, 2);
 
             // Ukonči půjčení

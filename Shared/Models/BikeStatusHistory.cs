@@ -12,7 +12,7 @@ namespace Shared.Models
         public string NewStatus { get; set; }
         public int? StationId { get; set; }
         public int? RentalId { get; set; }
-        public DateTime ChangedAt { get; set; }
+        public DateTime ChangedAt { get; set; } = DateTime.Now;
         public string Note { get; set; }
     }
 }

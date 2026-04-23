@@ -27,15 +27,15 @@ namespace Web.Repositories
                 $"SELECT * FROM Rentals WHERE UserId = @UserId ORDER BY {sortBy} {sortDir}",
                 new { UserId = userId });
         }
-        public async Task<IEnumerable<Rental>> GetAllAsync(string sortBy = "StartedAt", string sortDir = "DESC")
+        public async Task<IEnumerable<Rental>> GetAllAsync(string sortBy = "Id", string sortDir = "ASC")
         {
-            var allowed = new[] { "StartedAt", "EndedAt", "Price", "DurationMinutes", "Status" };
-            if (!allowed.Contains(sortBy)) sortBy = "StartedAt";
+            var allowed = new[] { "Id", "UserId", "BikeId", "StartStationId", "EndStationId", "StartedAt", "EndedAt", "DurationMinutes", "Price", "Status" };
+
+            if (!allowed.Contains(sortBy)) sortBy = "Id";
             if (sortDir != "ASC") sortDir = "DESC";
 
             using var connection = CreateConnection();
-            return await connection.QueryAsync<Rental>(
-                $"SELECT * FROM Rentals ORDER BY {sortBy} {sortDir}");
+            return await connection.QueryAsync<Rental>($"SELECT * FROM Rentals ORDER BY {sortBy} {sortDir}");
         }
 
         public async Task<Rental?> GetByIdAsync(int id)
@@ -84,11 +84,12 @@ namespace Web.Repositories
 
         public async Task ReturnAsync(int rentalId, int endStationId, decimal durationMinutes, decimal price)
         {
+            DateTime endedAt = DateTime.UtcNow;
             using var connection = CreateConnection();
             await connection.ExecuteAsync(@"
             UPDATE Rentals
             SET EndStationId = @EndStationId,
-                EndedAt = datetime('now'),
+                EndedAt = @EndedAt,
                 DurationMinutes = @DurationMinutes,
                 Price = @Price,
                 Status = 'completed'
@@ -97,6 +98,7 @@ namespace Web.Repositories
                 {
                     RentalId = rentalId,
                     EndStationId = endStationId,
+                    EndedAt = endedAt,
                     DurationMinutes = durationMinutes,
                     Price = price
                 });

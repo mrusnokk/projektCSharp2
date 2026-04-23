@@ -15,15 +15,15 @@ namespace Web.Repositories
         private SqliteConnection CreateConnection() =>
             new SqliteConnection(_connectionString);
 
-        public async Task<IEnumerable<Station>> GetAllAsync(string sortBy = "Name", string sortDir = "ASC")
+        public async Task<IEnumerable<Station>> GetAllAsync(string sortBy = "Id", string sortDir = "ASC")
         {
-            var allowed = new[] { "Name", "Address", "Capacity" };
-            if (!allowed.Contains(sortBy)) sortBy = "Name";
+            var allowed = new[] { "Id", "Name", "Lat", "Lng", "Address", "Capacity", "IsActive" };
+
+            if (!allowed.Contains(sortBy)) sortBy = "Id";
             if (sortDir != "ASC") sortDir = "DESC";
 
             using var connection = CreateConnection();
-            return await connection.QueryAsync<Station>(
-                $"SELECT * FROM Stations WHERE IsActive = 1 ORDER BY {sortBy} {sortDir}");
+            return await connection.QueryAsync<Station>($"SELECT * FROM Stations WHERE IsActive = 1 ORDER BY  {sortBy} {sortDir}");
         }
 
         public async Task<Station?> GetByIdAsync(int id)

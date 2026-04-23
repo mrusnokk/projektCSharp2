@@ -26,15 +26,15 @@ namespace Web.Repositories
                 "SELECT COUNT(*) FROM Bikes WHERE Code = @Code",
                 new { Code = code }) > 0;
         }
-        public async Task<IEnumerable<Bike>> GetAllAsync(string sortBy = "Code", string sortDir = "ASC")
+        public async Task<IEnumerable<Bike>> GetAllAsync(string sortBy = "Id", string sortDir = "ASC")
         {
-            var allowed = new[] { "Code", "Model", "Status" };
-            if (!allowed.Contains(sortBy)) sortBy = "Code";
+            var allowed = new[] { "Id", "Code", "Model", "CurrentStationId", "Status", "CreatedAt" };
+
+            if (!allowed.Contains(sortBy)) sortBy = "Id";
             if (sortDir != "ASC") sortDir = "DESC";
 
             using var connection = CreateConnection();
-            return await connection.QueryAsync<Bike>(
-                $"SELECT * FROM Bikes ORDER BY {sortBy} {sortDir}");
+            return await connection.QueryAsync<Bike>($"SELECT * FROM Bikes ORDER BY {sortBy} {sortDir}");
         }
 
         public async Task<Bike?> GetByIdAsync(int id)
@@ -92,7 +92,7 @@ namespace Web.Repositories
         {
             using var connection = CreateConnection();
 
-            // Zkontroluj jestli kolo má nějaká půjčení
+            //kontrola jestli neni pujcene
             var rentalCount = await connection.ExecuteScalarAsync<int>(
                 "SELECT COUNT(*) FROM Rentals WHERE BikeId = @Id",
                 new { Id = bikeId });

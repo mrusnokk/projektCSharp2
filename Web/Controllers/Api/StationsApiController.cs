@@ -51,12 +51,12 @@ namespace Web.Controllers.Api
 
 
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAll([FromQuery] string sortBy = "Id", [FromQuery] string sortDir = "ASC")
         {
             if (!IsAuthenticated())
                 return Unauthorized(new { error = "Chybí token" });
 
-            var stations = await _stationRepository.GetAllAsync();
+            var stations = await _stationRepository.GetAllAsync(sortBy, sortDir);
             return Ok(stations);
         }
 

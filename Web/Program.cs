@@ -1,9 +1,39 @@
+using Dapper;
 using Microsoft.Data.Sqlite;
+using System.Data;
 using Web.Data;
 using Web.Repositories;
 using Web.Services;
 namespace Web
 {
+    public class DateTimeHandler : SqlMapper.TypeHandler<DateTime>
+    {
+        public override void SetValue(IDbDataParameter parameter, DateTime value)
+        {
+            parameter.Value = value;
+        }
+
+        public override DateTime Parse(object value)
+        {
+            // 1. Zkontrolujeme, jestli nám SQLite neposlala datum jako text (String)
+            if (value is string stringValue)
+            {
+                // Přeložíme text na C# datum
+                var parsedDate = DateTime.Parse(stringValue);
+                // Až teď mu řekneme, že to bylo UTC a chceme lokální čas
+                return DateTime.SpecifyKind(parsedDate, DateTimeKind.Utc).ToLocalTime();
+            }
+
+            // 2. Pro jistotu: Pokud by to náhodou už jako datum přišlo
+            if (value is DateTime dt)
+            {
+                return DateTime.SpecifyKind(dt, DateTimeKind.Utc).ToLocalTime();
+            }
+
+            // 3. Poslední záchrana, pokud přijde něco úplně divného
+            return Convert.ToDateTime(value);
+        }
+    }
     public class Program
     {
         public static void Main(string[] args)
@@ -30,7 +60,7 @@ namespace Web
                 options.Cookie.IsEssential = true;
             });
             builder.Services.AddSingleton<TokenService>();
-
+            SqlMapper.AddTypeHandler(new DateTimeHandler());
 
             var app = builder.Build();
 
@@ -44,7 +74,7 @@ namespace Web
                 app.UseHsts();
             }
 
-            //app.UseHttpsRedirection();
+            
             app.UseStaticFiles();
             app.UseRouting();
             app.UseSession();

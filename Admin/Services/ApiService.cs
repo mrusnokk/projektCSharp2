@@ -61,24 +61,28 @@ namespace Admin.Services
             var responseJson = await response.Content.ReadAsStringAsync();
             return JsonConvert.DeserializeObject<T>(responseJson);
         }
+        
+
+        // Stations
+        public async Task<List<Station>> GetStationsAsync(string sortBy = "Id", string sortDir = "ASC") =>
+            await GetAsync<List<Station>>($"/api/stations?sortBy={sortBy}&sortDir={sortDir}");
+        public async Task<StationDetail> GetStationAsync(int id) =>
+            await GetAsync<StationDetail>($"/api/stations/{id}");
         public async Task CreateStationAsync(Station station) =>
         await PostAsync<object>("/api/stations", station);
 
         public async Task UpdateStationAsync(int id, Station station) =>
             await PutAsync($"/api/stations/{id}", station);
+        public async Task DeleteStationAsync(int id)
+        {
+            var response = await _client.DeleteAsync($"/api/stations/{id}");
+            response.EnsureSuccessStatusCode();
+        }
 
-        // Stations
-        public async Task<List<Station>> GetStationsAsync() =>
-            await GetAsync<List<Station>>("/api/stations");
-        public async Task<List<Rental>> GetRentalsAsync(string sortBy = "StartedAt", string sortDir = "DESC") =>
-            await GetAsync<List<Rental>>($"/api/rentals?sortBy={sortBy}&sortDir={sortDir}");
-
-        public async Task<StationDetail> GetStationAsync(int id) =>
-            await GetAsync<StationDetail>($"/api/stations/{id}");
 
         // Bikes
-        public async Task<List<Bike>> GetBikesAsync() =>
-            await GetAsync<List<Bike>>("/api/bikes");
+        public async Task<List<Bike>> GetBikesAsync(string sortBy = "Id", string sortDir = "ASC") =>
+            await GetAsync<List<Bike>>($"/api/bikes?sortBy={sortBy}&sortDir={sortDir}");
 
         public async Task<Bike> GetBikeAsync(int id) =>
             await GetAsync<Bike>($"/api/bikes/{id}");
@@ -96,31 +100,28 @@ namespace Admin.Services
             await GetAsync<List<BikeStatusHistory>>($"/api/bikes/{id}/history");
 
         // Users
-        public async Task<List<User>> GetUsersAsync() =>
-            await GetAsync<List<User>>("/api/users");
+        public async Task<List<User>> GetUsersAsync(string sortBy = "Id", string sortDir = "ASC") =>
+            await GetAsync<List<User>>($"/api/users?sortBy={sortBy}&sortDir={sortDir}");
 
         public async Task SetUserActiveAsync(int id, bool isActive) =>
             await PutAsync($"/api/users/{id}/active", new { isActive });
+        public async Task DeleteUserAsync(int id)
+        {
+            var response = await _client.DeleteAsync($"/api/users/{id}");
+            response.EnsureSuccessStatusCode();
+        }
 
         // Rentals
-        public async Task<List<Rental>> GetRentalsAsync() =>
-            await GetAsync<List<Rental>>("/api/rentals");
+        public async Task<List<Rental>> GetRentalsAsync(string sortBy="StartedAt", string sortDir = "ASC") =>
+            await GetAsync<List<Rental>>($"/api/rentals?sortBy={sortBy}&sortDir={sortDir}");
         public async Task DeleteBikeAsync(int id)
         {
             var response = await _client.DeleteAsync($"/api/bikes/{id}");
             response.EnsureSuccessStatusCode();
         }
 
-        public async Task DeleteStationAsync(int id)
-        {
-            var response = await _client.DeleteAsync($"/api/stations/{id}");
-            response.EnsureSuccessStatusCode();
-        }
+        
 
-        public async Task DeleteUserAsync(int id)
-        {
-            var response = await _client.DeleteAsync($"/api/users/{id}");
-            response.EnsureSuccessStatusCode();
-        }
+        
     }
 }

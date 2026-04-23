@@ -22,12 +22,12 @@ namespace Web.Controllers.Api
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAll([FromQuery] string sortBy = "Id", [FromQuery] string sortDir = "ASC")
         {
             if (!IsAuthenticated())
                 return Unauthorized(new { error = "Chybí token" });
 
-            var bikes = await _bikeRepository.GetAllAsync();
+            var bikes = await _bikeRepository.GetAllAsync(sortBy, sortDir);
             return Ok(bikes);
         }
 

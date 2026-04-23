@@ -28,12 +28,12 @@
                               SelectionMode="Single"
                               Margin="10">
                         <DataGrid.Columns>
-                            <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="50"/>
-                            <DataGridTextColumn Header="Jméno" Binding="{Binding FullName}" Width="150"/>
-                            <DataGridTextColumn Header="Email" Binding="{Binding Email}" Width="200"/>
-                            <DataGridTextColumn Header="Telefon" Binding="{Binding Phone}" Width="120"/>
-                            <DataGridTextColumn Header="Registrace" Binding="{Binding CreatedAt, StringFormat=dd.MM.yyyy}" Width="100"/>
-                            <DataGridTemplateColumn Header="Aktivní" Width="80">
+                            <DataGridTextColumn Header="ID" Binding="{Binding Id}" SortMemberPath="Id" Width="50"/>
+                            <DataGridTextColumn Header="Jméno" Binding="{Binding FullName}" SortMemberPath="FirstName" Width="150"/>
+                            <DataGridTextColumn Header="Email" Binding="{Binding Email}" SortMemberPath="Email" Width="200"/>
+                            <DataGridTextColumn Header="Telefon" Binding="{Binding Phone}" SortMemberPath="Phone" Width="120"/>
+                            <DataGridTextColumn Header="Registrace" Binding="{Binding CreatedAt, StringFormat=dd.MM.yyyy}" SortMemberPath="CreatedAt" Width="100"/>
+                            <DataGridTemplateColumn Header="Aktivní" SortMemberPath="IsActive" Width="80">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
                                         <CheckBox IsChecked="{Binding IsActive}" IsEnabled="False" HorizontalAlignment="Center"/>
@@ -77,11 +77,11 @@
                               SelectionChanged="BikesGrid_SelectionChanged"
                               Margin="10">
                         <DataGrid.Columns>
-                            <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="50"/>
-                            <DataGridTextColumn Header="Kód" Binding="{Binding Code}" Width="100"/>
-                            <DataGridTextColumn Header="Model" Binding="{Binding Model}" Width="150"/>
-                            <DataGridTextColumn Header="Stanoviště" Binding="{Binding CurrentStationId}" Width="100"/>
-                            <DataGridTextColumn Header="Stav" Binding="{Binding Status}" Width="100"/>
+                            <DataGridTextColumn Header="ID" Binding="{Binding Id}" SortMemberPath="Id" Width="50"/>
+                            <DataGridTextColumn Header="Kód" Binding="{Binding Code}"  SortMemberPath="Code" Width="100"/>
+                            <DataGridTextColumn Header="Model" Binding="{Binding Model}" SortMemberPath="Model" Width="150"/>
+                            <DataGridTextColumn Header="Stanoviště" Binding="{Binding CurrentStationId}" SortMemberPath="CurrentStationId" Width="100"/>
+                            <DataGridTextColumn Header="Stav" Binding="{Binding Status}" SortMemberPath="Status" Width="100"/>
                             <DataGridTemplateColumn Header="Akce" Width="260">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
@@ -134,11 +134,12 @@
                               SelectionMode="Single"
                               Margin="10">
                         <DataGrid.Columns>
-                            <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="50"/>
-                            <DataGridTextColumn Header="Název" Binding="{Binding Name}" Width="150"/>
-                            <DataGridTextColumn Header="Adresa" Binding="{Binding Address}" Width="200"/>
-                            <DataGridTextColumn Header="GPS" Binding="{Binding Lat}" Width="80"/>
-                            <DataGridTextColumn Header="Kapacita" Binding="{Binding Capacity}" Width="80"/>
+                            <DataGridTextColumn Header="ID" Binding="{Binding Id}" SortMemberPath="Id" Width="50"/>
+                            <DataGridTextColumn Header="Název" Binding="{Binding Name}" SortMemberPath="Name" Width="150"/>
+                            <DataGridTextColumn Header="Adresa" Binding="{Binding Address}" SortMemberPath="Address" Width="200"/>
+                            <DataGridTextColumn Header="GPS-Lat" Binding="{Binding Lat, StringFormat={}{0:F6}}" SortMemberPath="Lat" Width="90"/>
+                            <DataGridTextColumn Header="GPS-Lng" Binding="{Binding Lng, StringFormat={}{0:F6}}" SortMemberPath="Lng" Width="90"/>
+                            <DataGridTextColumn Header="Kapacita" Binding="{Binding Capacity}" SortMemberPath="Capacity" Width="80"/>
                             <DataGridTemplateColumn Header="Aktivní" Width="80">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>

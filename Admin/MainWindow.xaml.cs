@@ -20,6 +20,9 @@ namespace Admin
     {
         private readonly ApiService _api;
         private System.Threading.Timer? _refreshTimer;
+        private string _sortBy = "Id";
+        private string _sortDir = "ASC";
+
 
         public MainWindow()
         {
@@ -50,6 +53,32 @@ namespace Admin
             base.OnClosed(e);
         }
 
+        private async void UniversalGrid_Sorting(object sender, DataGridSortingEventArgs e)
+        {
+            e.Handled = true;
+            string propertyName = e.Column.SortMemberPath;
+            if (string.IsNullOrEmpty(propertyName)) return;
+
+            if (_sortBy == propertyName)
+            {
+                _sortDir = _sortDir == "ASC" ? "DESC" : "ASC";
+            }
+            else
+            {
+                _sortBy = propertyName;
+                _sortDir = "ASC";
+            }
+
+            e.Column.SortDirection = _sortDir == "ASC"
+                ? ListSortDirection.Ascending
+                : ListSortDirection.Descending;
+
+            if (sender == BikesGrid) await LoadBikes();
+            else if (sender == UsersGrid) await LoadUsers();
+            else if (sender == StationsGrid) await LoadStations();
+            else if (sender == RentalsGrid) await LoadRentals();
+        }
+
 
         // USERS
         private async void RefreshUsers_Click(object sender, RoutedEventArgs e) =>
@@ -59,7 +88,7 @@ namespace Admin
         {
             try
             {
-                var users = await _api.GetUsersAsync();
+                var users = await _api.GetUsersAsync(_sortBy, _sortDir);
                 UsersGrid.ItemsSource = users;
             }
             catch (Exception ex)
@@ -95,7 +124,7 @@ namespace Admin
         {
             try
             {
-                var bikes = await _api.GetBikesAsync();
+                var bikes = await _api.GetBikesAsync(_sortBy, _sortDir);
                 BikesGrid.ItemsSource = bikes;
 
                 if (bikes.Any())
@@ -120,7 +149,10 @@ namespace Admin
                     var history = await _api.GetBikeHistoryAsync(bike.Id);
                     BikeHistoryGrid.ItemsSource = history;
                 }
-                catch { }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Chyba historie: {ex.Message}");
+                }
             }
         }
 
@@ -152,7 +184,6 @@ namespace Admin
                 var bikes = BikesGrid.ItemsSource as List<Bike>;
                 var bike = bikes?.FirstOrDefault(b => b.Id == id);
                 if (bike == null) return;
-
                 if (bike.Status == "rented")
                 {
                     MessageBox.Show(
@@ -169,20 +200,15 @@ namespace Admin
                     try
                     {
                         await _api.UpdateBikeStatusAsync(id, dialog.NewStatus, dialog.Note);
-
                         await LoadBikes();
                     }
                     catch (HttpRequestException ex) when (ex.Message.Contains("400"))
-                    
                     {
-                        
                         MessageBox.Show(
                             "Nepodařilo se změnit stav kola. Je pravděpodobné, že si ho mezitím někdo půjčil přes web. Aplikace nyní stáhne aktuální data.",
                             "Zastaralá data",
                             MessageBoxButton.OK,
                             MessageBoxImage.Information);
-
-
                         try
                         {
                             var freshBikes = await _api.GetBikesAsync();
@@ -195,7 +221,6 @@ namespace Admin
                     }
                     catch (Exception ex)
                     {
-                        
                         MessageBox.Show(
                             $"Došlo k chybě při komunikaci se serverem: {ex.Message}",
                             "Chyba",
@@ -203,61 +228,6 @@ namespace Admin
                             MessageBoxImage.Error);
                     }
                 }
-            }
-        }
-
-        // STATIONS
-        private async void RefreshStations_Click(object sender, RoutedEventArgs e) =>
-            await LoadStations();
-
-        private async Task LoadStations()
-        {
-            try
-            {
-                var stations = await _api.GetStationsAsync();
-                StationsGrid.ItemsSource = stations;
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Chyba načítání stanovišť: {ex.Message}");
-            }
-        }
-
-        private void AddStation_Click(object sender, RoutedEventArgs e)
-        {
-            var dialog = new StationDialog();
-            if (dialog.ShowDialog() == true)
-                _ = LoadStations();
-        }
-
-        private void EditStation_Click(object sender, RoutedEventArgs e)
-        {
-            if (sender is Button btn && btn.Tag is int id)
-            {
-                var stations = StationsGrid.ItemsSource as List<Station>;
-                var station = stations?.FirstOrDefault(s => s.Id == id);
-                if (station == null) return;
-
-                var dialog = new StationDialog(station);
-                if (dialog.ShowDialog() == true)
-                    _ = LoadStations();
-            }
-        }
-
-        // RENTALS
-        private async void RefreshRentals_Click(object sender, RoutedEventArgs e) =>
-            await LoadRentals();
-
-        private async Task LoadRentals()
-        {
-            try
-            {
-                var rentals = await _api.GetRentalsAsync();
-                RentalsGrid.ItemsSource = rentals;
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Chyba načítání půjčení: {ex.Message}");
             }
         }
         private async void DeleteBike_Click(object sender, RoutedEventArgs e)
@@ -295,6 +265,43 @@ namespace Admin
             }
         }
 
+        // STATIONS
+        private async void RefreshStations_Click(object sender, RoutedEventArgs e) =>
+            await LoadStations();
+
+        private async Task LoadStations()
+        {
+            try
+            {
+                var stations = await _api.GetStationsAsync(_sortBy, _sortDir);
+                StationsGrid.ItemsSource = stations;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Chyba načítání stanovišť: {ex.Message}");
+            }
+        }
+
+        private void AddStation_Click(object sender, RoutedEventArgs e)
+        {
+            var dialog = new StationDialog();
+            if (dialog.ShowDialog() == true)
+                _ = LoadStations();
+        }
+
+        private void EditStation_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button btn && btn.Tag is int id)
+            {
+                var stations = StationsGrid.ItemsSource as List<Station>;
+                var station = stations?.FirstOrDefault(s => s.Id == id);
+                if (station == null) return;
+
+                var dialog = new StationDialog(station);
+                if (dialog.ShowDialog() == true)
+                    _ = LoadStations();
+            }
+        }
         private async void DeleteStation_Click(object sender, RoutedEventArgs e)
         {
             if (sender is Button btn && btn.Tag is int id)
@@ -324,7 +331,22 @@ namespace Admin
             }
         }
 
+        // RENTALS
+        private async void RefreshRentals_Click(object sender, RoutedEventArgs e) =>
+            await LoadRentals();
 
+        private async Task LoadRentals()
+        {
+            try
+            {
+                var rentals = await _api.GetRentalsAsync(_sortBy, _sortDir);
+                RentalsGrid.ItemsSource = rentals;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Chyba načítání půjčení: {ex.Message}");
+            }
+        }
     }
 }
 
