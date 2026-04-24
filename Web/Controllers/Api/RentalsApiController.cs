@@ -69,12 +69,12 @@ namespace Web.Controllers.Api
             if (userId == null)
                 return Unauthorized(new { error = "Chybí token" });
 
-            // Zkontroluj jestli uživatel nemá aktivní půjčení
+            // kontrola jestli nema aktivni pujceni
             var activeRental = await _rentalRepository.GetActiveByUserAsync(userId.Value);
             if (activeRental != null)
                 return BadRequest(new { error = "Již máte aktivní půjčení" });
 
-            // Zkontroluj kolo
+            
             var bike = await _bikeRepository.GetByIdAsync(request.BikeId);
             if (bike == null)
                 return NotFound(new { error = "Kolo nenalezeno" });
@@ -82,12 +82,12 @@ namespace Web.Controllers.Api
             if (bike.Status != "available")
                 return BadRequest(new { error = "Kolo není dostupné" });
 
-            // Zkontroluj stanoviště
+           
             var station = await _stationRepository.GetByIdAsync(request.StationId);
             if (station == null)
                 return NotFound(new { error = "Stanoviště nenalezeno" });
 
-            // Vytvoř půjčení
+            
             var rental = new Rental
             {
                 UserId = userId.Value,
@@ -97,7 +97,7 @@ namespace Web.Controllers.Api
 
             var rentalId = await _rentalRepository.CreateAsync(rental);
 
-            // Zapiš historii
+            
             await _historyRepository.AddAsync(new BikeStatusHistory
             {
                 BikeId = bike.Id,
@@ -108,7 +108,7 @@ namespace Web.Controllers.Api
                 Note = "Půjčení kola"
             });
 
-            // Aktualizuj stav kola
+            
             await _bikeRepository.UpdateStatusAsync(bike.Id, "rented", null);
 
             return Ok(new { rentalId });
@@ -131,19 +131,19 @@ namespace Web.Controllers.Api
             if (rental.Status == "completed")
                 return BadRequest(new { error = "Půjčení již bylo ukončeno" });
 
-            // Zkontroluj stanoviste vraceni
+           
             var station = await _stationRepository.GetByIdAsync(request.EndStationId);
             if (station == null)
                 return NotFound(new { error = "Stanoviště nenalezeno" });
 
-            // Vypocitej dobu a cenu
+            
             var duration = (decimal)(DateTime.UtcNow - rental.StartedAt).TotalMinutes;
-            var price = Math.Round(duration / 60 * 30, 2); // 30 Kc za hodinu
+            var price = Math.Round(duration / 60 * 30, 2); // 30 kc/h
 
-            // Ukonceni a pujceni
+            
             await _rentalRepository.ReturnAsync(id, request.EndStationId, duration, price);
 
-            // Zapis historii
+            
             var bike = await _bikeRepository.GetByIdAsync(rental.BikeId);
             await _historyRepository.AddAsync(new BikeStatusHistory
             {
@@ -155,7 +155,7 @@ namespace Web.Controllers.Api
                 Note = "Vrácení kola"
             });
 
-            // Aktualizuj stav kola
+            
             await _bikeRepository.UpdateStatusAsync(rental.BikeId, "available", request.EndStationId);
 
             return Ok(new { duration, price });

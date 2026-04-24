@@ -60,7 +60,7 @@
         const started = result.data.map(d => d.rentalsStarted);
         const ended = result.data.map(d => d.rentalsEnded);
 
-        // Aktualizuj tabulku
+        // tab aktualizace
         const tbody = document.getElementById('stats-body');
         tbody.innerHTML = result.data.map(d => `
         <tr>
@@ -70,7 +70,7 @@
         </tr>
         `).join('');
 
-        // Aktualizuj graf
+        // graf aktualizace
         if (chart) chart.destroy();
         chart = new Chart(document.getElementById('stats-chart'), {
         type: 'bar',
@@ -96,7 +96,7 @@
         });
         }
 
-        // Načti automaticky při otevření stránky
+        // auto nacitani
         loadStats();
     </script>
 }

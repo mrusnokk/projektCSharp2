@@ -45,7 +45,7 @@ namespace Web.Controllers
             if (userId == null)
                 return RedirectToAction("Login", "Account");
 
-            // Zkontroluj jestli uživatel nemá aktivní půjčení
+            // kotrola jestli nema pujcene kolo
             var activeRental = await _rentalRepository.GetActiveByUserAsync(userId.Value);
             if (activeRental != null)
             {
@@ -85,7 +85,7 @@ namespace Web.Controllers
                 return RedirectToAction("Detail", "Stations", new { id = stationId });
             }
 
-            // Vytvoř půjčení
+            
             var rental = new Rental
             {
                 UserId = userId.Value,
@@ -95,7 +95,7 @@ namespace Web.Controllers
 
             var rentalId = await _rentalRepository.CreateAsync(rental);
 
-            // Zapiš historii
+            
             await _historyRepository.AddAsync(new BikeStatusHistory
             {
                 BikeId = bikeId,
@@ -106,7 +106,7 @@ namespace Web.Controllers
                 Note = "Půjčení kola"
             });
 
-            // Aktualizuj stav kola
+           
             await _bikeRepository.UpdateStatusAsync(bikeId, "rented", null);
 
             TempData["Success"] = "Kolo bylo úspěšně půjčeno!";
@@ -146,14 +146,14 @@ namespace Web.Controllers
             if (rental == null || rental.UserId != userId.Value || rental.Status == "completed")
                 return RedirectToAction("Index");
 
-            // Vypočítej dobu a cenu
+            
             var duration = (decimal)(DateTime.Now - rental.StartedAt).TotalMinutes;
             var price = Math.Round(duration / 60 * 30, 2);
 
-            // Ukonči půjčení
+           
             await _rentalRepository.ReturnAsync(rentalId, endStationId, duration, price);
 
-            // Zapiš historii
+            
             await _historyRepository.AddAsync(new BikeStatusHistory
             {
                 BikeId = rental.BikeId,
@@ -164,7 +164,7 @@ namespace Web.Controllers
                 Note = "Vrácení kola"
             });
 
-            // Aktualizuj stav kola
+            
             await _bikeRepository.UpdateStatusAsync(rental.BikeId, "available", endStationId);
 
             TempData["Success"] = $"Kolo vráceno. Doba půjčení: {Math.Round(duration)} minut, cena: {price} Kč.";
