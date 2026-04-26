@@ -33,7 +33,7 @@ namespace Admin
 
         private async void Save_Click(object sender, RoutedEventArgs e)
         {
-            // Validace
+            //validace
             bool valid = true;
 
             if (string.IsNullOrWhiteSpace(CodeBox.Text))
